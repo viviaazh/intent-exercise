@@ -1,19 +1,31 @@
 package id.ac.polinema.intentexercise;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import java.io.IOException;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = RegisterActivity.class.getCanonicalName();
+
     public static final String FULLNAME_KEY = "fullname";
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
     public static final String CPASSWORD_KEY = "confirmpassword";
     public static final String HOMEPAGE_KEY = "homepage";
     public static final String ABOUT_KEY = "about";
+    public static final String IMAGE_KEY = "image";
 
     private EditText fullnameInput;
     private EditText emailInput;
@@ -22,6 +34,10 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText homepageInput;
     private EditText aboutInput;
 
+    private ImageView imageView;
+    private Uri imageUri = null;
+
+    private static final int GALLERY_REQUEST_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +48,6 @@ public class RegisterActivity extends AppCompatActivity {
         cpasswordInput = findViewById(R.id.text_confirm_password);
         homepageInput = findViewById(R.id.text_homepage);
         aboutInput = findViewById(R.id.text_about);
-
     }
 
     public void handleOk(View view) {
@@ -44,15 +59,73 @@ public class RegisterActivity extends AppCompatActivity {
         String about = aboutInput.getText().toString();
 
         Intent intent = new Intent(this, ProfileActivity.class);
-        intent.putExtra(FULLNAME_KEY, fullname);
-        intent.putExtra(EMAIL_KEY, email);
-        intent.putExtra(PASSWORD_KEY, password);
-        intent.putExtra(CPASSWORD_KEY, cpassword);
-        intent.putExtra(HOMEPAGE_KEY, homepage);
-        intent.putExtra(ABOUT_KEY, about);
-        startActivity(intent);
+
+        if(fullnameInput.length()==0){
+            fullnameInput.setError("Fullname harus diisi");
+        }
+        else if(emailInput.length()==0){
+            emailInput.setError("Email harus diisi");
+        }
+        else if(passwordInput.length()==0){
+            passwordInput.setError("Password harus diisi");
+        }
+        else if(cpasswordInput.length()==0){
+            cpasswordInput.setError("Konfirmasi password terlebih dahulu");
+        }
+        else if (!password.equals(cpassword)){
+            cpasswordInput.setError("Password tidak sama, silahkan ulangi");
+        }
+        else if(homepageInput.length()==0){
+            homepageInput.setError("Homepage harus diisi");
+        }
+        else if(aboutInput.length()==0){
+            aboutInput.setError("About harus diisi");
+        }
+        else{
+            intent.putExtra(FULLNAME_KEY, fullname);
+            intent.putExtra(EMAIL_KEY, email);
+            intent.putExtra(HOMEPAGE_KEY, homepage);
+            intent.putExtra(ABOUT_KEY, about);
+            if(imageUri!= null){
+                intent.putExtra(IMAGE_KEY, imageUri.toString());
+                try{
+                    startActivity(intent);
+                }catch(Exception e){
+                    intent.putExtra(IMAGE_KEY, "");
+                    Toast.makeText(this, "Foto terlalu besar", Toast.LENGTH_SHORT).show();
+                    startActivity(intent);
+                }
+            }
+            else{
+                Toast.makeText(this, "Masukkan foto terlebih dahulu", Toast.LENGTH_SHORT).show();
+                handleChangePict(view);
+            }
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_CANCELED){
+            return;
+        }
+        if(requestCode == GALLERY_REQUEST_CODE){
+            if(data!=null){
+                try{
+                    imageUri = data.getData();
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    imageView.setImageBitmap(bitmap);
+                }catch (IOException e){
+                    Toast.makeText(this, "Can't load image", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }
     }
 
     public void handleChangePict(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 }
