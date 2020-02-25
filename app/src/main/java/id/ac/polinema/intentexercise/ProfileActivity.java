@@ -14,12 +14,10 @@ import android.widget.TextView;
 import java.io.IOException;
 
 import static id.ac.polinema.intentexercise.RegisterActivity.ABOUT_KEY;
-import static id.ac.polinema.intentexercise.RegisterActivity.CPASSWORD_KEY;
 import static id.ac.polinema.intentexercise.RegisterActivity.EMAIL_KEY;
 import static id.ac.polinema.intentexercise.RegisterActivity.FULLNAME_KEY;
 import static id.ac.polinema.intentexercise.RegisterActivity.HOMEPAGE_KEY;
 import static id.ac.polinema.intentexercise.RegisterActivity.IMAGE_KEY;
-import static id.ac.polinema.intentexercise.RegisterActivity.PASSWORD_KEY;
 
 public class ProfileActivity extends AppCompatActivity {
     private TextView fullnameText;
@@ -34,18 +32,18 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        fullnameText = findViewById(R.id.text_fullname);
-        emailText = findViewById(R.id.text_email);
-        homepageText = findViewById(R.id.text_homepage);
-        aboutText = findViewById(R.id.text_about);
         imageView = findViewById(R.id.image_profile);
+        aboutText = findViewById(R.id.label_about);
+        fullnameText = findViewById(R.id.label_fullname);
+        emailText = findViewById(R.id.label_email);
+        homepageText = findViewById(R.id.label_homepage);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null){
+            aboutText.setText(extras.getString(ABOUT_KEY));
             fullnameText.setText(extras.getString(FULLNAME_KEY));
             emailText.setText(extras.getString(EMAIL_KEY));
             homepageText.setText(extras.getString(HOMEPAGE_KEY));
-            aboutText.setText(extras.getString(ABOUT_KEY));
             url = extras.getString(HOMEPAGE_KEY);
             uri = Uri.parse(extras.getString(IMAGE_KEY));
             Bitmap bitmap = null;

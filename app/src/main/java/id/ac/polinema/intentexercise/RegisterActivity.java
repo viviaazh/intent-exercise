@@ -19,13 +19,12 @@ import java.io.IOException;
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getCanonicalName();
 
+    public static final String IMAGE_KEY = "image";
+    public static final String ABOUT_KEY = "about";
     public static final String FULLNAME_KEY = "fullname";
     public static final String EMAIL_KEY = "email";
-    public static final String PASSWORD_KEY = "password";
-    public static final String CPASSWORD_KEY = "confirmpassword";
     public static final String HOMEPAGE_KEY = "homepage";
-    public static final String ABOUT_KEY = "about";
-    public static final String IMAGE_KEY = "image";
+
 
     private EditText fullnameInput;
     private EditText emailInput;
@@ -33,8 +32,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText cpasswordInput;
     private EditText homepageInput;
     private EditText aboutInput;
-
     private ImageView imageView;
+
     private Uri imageUri = null;
 
     private static final int GALLERY_REQUEST_CODE = 1;
@@ -42,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        imageView = findViewById(R.id.image_profile);
         fullnameInput = findViewById(R.id.text_fullname);
         emailInput = findViewById(R.id.text_email);
         passwordInput = findViewById(R.id.text_password);
@@ -58,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
         String homepage = homepageInput.getText().toString();
         String about = aboutInput.getText().toString();
 
-        Intent intent = new Intent(this, ProfileActivity.class);
+
 
         if(fullnameInput.length()==0){
             fullnameInput.setError("Fullname harus diisi");
@@ -82,10 +82,12 @@ public class RegisterActivity extends AppCompatActivity {
             aboutInput.setError("About harus diisi");
         }
         else{
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra(ABOUT_KEY, about);
             intent.putExtra(FULLNAME_KEY, fullname);
             intent.putExtra(EMAIL_KEY, email);
             intent.putExtra(HOMEPAGE_KEY, homepage);
-            intent.putExtra(ABOUT_KEY, about);
+
             if(imageUri!= null){
                 intent.putExtra(IMAGE_KEY, imageUri.toString());
                 try{
@@ -107,17 +109,17 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_CANCELED){
+        if (resultCode == RESULT_CANCELED){
             return;
         }
         if(requestCode == GALLERY_REQUEST_CODE){
-            if(data!=null){
+            if(data != null){
                 try{
                     imageUri = data.getData();
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     imageView.setImageBitmap(bitmap);
                 }catch (IOException e){
-                    Toast.makeText(this, "Can't load image", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Can't Load Image", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, e.getMessage());
                 }
             }
